@@ -178,17 +178,18 @@ function R = rotMat(angle,axis)
 % Outputs:
 %    R - resulting rotation matrix of the given angle and axis [3x3]
 %
-if axis == 1                            % body x-axis
-    R = [1,0,0;
-         0,cos(angle),-sin(angle);
-         0,sin(angle),cos(angle)];
-elseif axis == 2                        % body y-axis
-    R = [cos(angle),0,sin(angle);
-         0,1,0;
-         -sin(angle),0,cos(angle)];
-else                                    % body z-axis
-    R= [cos(angle),-sin(angle),0;
-        sin(angle),cos(angle),0;
-        0,0,1];
+switch axis
+    case 1
+        R = [1,0,0;
+             0,cos(angle),-sin(angle);
+             0,sin(angle),cos(angle)];
+    case 2
+        R = [cos(angle),0,sin(angle);
+             0,1,0;
+             -sin(angle),0,cos(angle)];
+    case 3
+        R = [cos(angle),-sin(angle),0;
+             sin(angle),cos(angle),0;
+             0,0,1];
 end
 end
