@@ -1,4 +1,4 @@
-function [r,v] = extractEphem(epoch,body)
+function [r,v] = extractEphem(epoch,body,toggle)
 % extractEphem - returns the state vectors of a planet at a given date
 % This function uses the planetary ephemeris model described by
 %
@@ -74,17 +74,23 @@ for k = 3:6
         ephem(k) = mod(ephem(k),360);
     end
 end
+disp(ephem(2:6))
 
 % Solve for other useful orbital elements
 elem(1) = (mu*ephem(1)*(1-ephem(2)^2))^(1/2); %specific angular momentum (km^2/s)
 elem(2) = deg2rad(ephem(5) - ephem(4)); % argument of perihelion (rad)
 elem(3) = deg2rad(ephem(6) - ephem(5)); % mean anomaly (rad)
-elem(4) = deg2rad(kepler_E(ephem(2),elem(3))); % Eccentric Anomaly (rad)
+elem(4) = kepler_E(ephem(2),elem(3)); % Eccentric Anomaly (rad)
 elem(5) = 2*atan(sqrt((1+ephem(2))/(1-ephem(2)))*tan(elem(4)/2)); % True anomaly (rad)
 
 % Determine position and velocity vectors
-r = detPosition(ephem(1),ephem(2),elem(5),elem(2),deg2rad(ephem(3)),deg2rad(ephem(4)));
-v = detVelocity(r,ephem(1),ephem(2),elem(5),elem(2),deg2rad(ephem(3)),deg2rad(ephem(4)),mu);
+if ~toggle % If toggle is enabled, skip calculating velocity (to save time)
+    r = detPosition(ephem(1),ephem(2),elem(5),elem(2),deg2rad(ephem(3)),deg2rad(ephem(4)));
+    v = detVelocity(r,ephem(1),ephem(2),elem(5),elem(2),deg2rad(ephem(3)),deg2rad(ephem(4)),mu);
+else
+    r = detPosition(ephem(1),ephem(2),elem(5),elem(2),deg2rad(ephem(3)),deg2rad(ephem(4)));
+    v = [0,0,0];
+end
 end
 
 %% Subfunctions
