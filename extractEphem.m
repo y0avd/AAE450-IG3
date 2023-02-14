@@ -74,7 +74,6 @@ for k = 3:6
         ephem(k) = mod(ephem(k),360);
     end
 end
-disp(ephem(2:6))
 
 % Solve for other useful orbital elements
 elem(1) = (mu*ephem(1)*(1-ephem(2)^2))^(1/2); %specific angular momentum (km^2/s)
