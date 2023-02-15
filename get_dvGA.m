@@ -1,4 +1,4 @@
-function dvGA = get_dvGA(vp,vi,flybyr,planetID);
+function [dvGA, delta] = get_dvGA(vp,vi,flybyr,planetID)
     mu = getPlanetMu(planetID);
 
     v_rel_in = vi - vp;

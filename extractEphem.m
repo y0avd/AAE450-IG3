@@ -1,4 +1,4 @@
-function [r,v] = extractEphem(epoch,body,toggle)
+function [r,v] = extractEphem(epoch,body,vCalcEnable)
 % extractEphem - returns the state vectors of a planet at a given date
 % This function uses the planetary ephemeris model described by
 %
@@ -82,14 +82,19 @@ elem(3) = deg2rad(ephem(6) - ephem(5)); % mean anomaly (rad)
 elem(4) = kepler_E(ephem(2),elem(3)); % Eccentric Anomaly (rad)
 elem(5) = 2*atan(sqrt((1+ephem(2))/(1-ephem(2)))*tan(elem(4)/2)); % True anomaly (rad)
 
-% Determine position and velocity vectors
-if ~toggle % If toggle is enabled, skip calculating velocity (to save time)
-    r = detPosition(ephem(1),ephem(2),elem(5),elem(2),deg2rad(ephem(3)),deg2rad(ephem(4)));
+% Determine position vector
+r = detPosition(ephem(1),ephem(2),elem(5),elem(2),deg2rad(ephem(3)),deg2rad(ephem(4)));
+
+% Determine velocity vector
+if vCalcEnable % If toggle is enabled calculate velocity
     v = detVelocity(r,ephem(1),ephem(2),elem(5),elem(2),deg2rad(ephem(3)),deg2rad(ephem(4)),mu);
-else
-    r = detPosition(ephem(1),ephem(2),elem(5),elem(2),deg2rad(ephem(3)),deg2rad(ephem(4)));
+else % if toggle is off computation is saved by not calculating velocity
     v = [0,0,0];
 end
+
+r = r';
+v = v';
+
 end
 
 %% Subfunctions

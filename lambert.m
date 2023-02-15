@@ -119,8 +119,6 @@
 % orbital-boundary value problem.
 % https://nl.mathworks.com/matlabcentral/fileexchange/26348
 
-
-
 % -----------------------------------------------------------------
 % Izzo's version:
 % Very fast, but not very robust for more complicated cases
@@ -209,10 +207,12 @@ function [V1,...
 
     % decide whether to use the left or right branch (for multi-revolution
     % problems), and the long- or short way
-    leftbranch = sign(m);   longway = sign(tf);
+    leftbranch = sign(m);   
+    longway = sign(tf);
     m = abs(m);             tf = abs(tf);
-    if (longway < 0), dth = 2*pi - dth; end
 
+    if (longway < 0), dth = 2*pi - dth; end
+    
     % derived quantities
     c      = sqrt(1 + mr2vec^2 - 2*mr2vec*cos(dth)); % non-dimensional chord
     s      = (1 + mr2vec + c)/2;                     % non-dimensional semi-perimeter
