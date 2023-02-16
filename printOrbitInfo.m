@@ -40,10 +40,15 @@ function printOrbitInfo(x,launchDateRange,sequence)
     earth_vinf = norm(v1 - vp1);
     uranus_vinf = norm(v4 - vp4);
 
+    [dv_tot, dv_earth, dv_uranus] = missiondV(earth_vinf,uranus_vinf);
+
     fprintf("\nLaunch Date:")
     disp(datetime(launchDate,'convertfrom','juliandate'))
     fprintf("V infinity from Earth: %.4f km/s\n",earth_vinf)
     fprintf("V infinity at Uranus: %.4f km/s\n",uranus_vinf)
+    fprintf("Delta V at Earth: %.4f km/s\n",dv_earth)
+    fprintf("Delta V at Uranus: %.4f km/s\n",dv_uranus)
+    fprintf("Total Mission Delta V: %.4f km/s\n",dv_tot)
     fprintf("\nTotal TOF: %.4f years\n", day2yr(TOFleg1+TOFleg2+TOFleg3))
     if TOFleg1 > yr2day(1)
         fprintf("Leg 1 TOF: %.4f years\n", day2yr(TOFleg1))
@@ -60,7 +65,7 @@ function printOrbitInfo(x,launchDateRange,sequence)
     else
         fprintf("Leg 3 TOF: %.4f days\n", TOFleg3)
     end
-    fprintf("\nPassby radius at GA1: %.4f km\n",passbyr1)
-    fprintf("Passby radius at GA2: %.4f km\n",passbyr2)
+    fprintf("\nPassby radius at GA1: %.4f km (%.2f R)\n",passbyr1,passbyr1/getPlanetRad(sequence(2)))
+    fprintf("Passby radius at GA2: %.4f km (%.2f R)\n",passbyr2,passbyr2/getPlanetRad(sequence(3)))
 end
 
