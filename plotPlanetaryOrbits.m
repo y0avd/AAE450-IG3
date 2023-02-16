@@ -1,7 +1,6 @@
 function plotPlanetaryOrbits(launchDate, sequence)
     nump = 1e3;
 
-    hold on; grid on; axis equal
     r_sun = 696000;
     [X,Y,Z] = sphere;
     surf(X*r_sun,Y*r_sun,Z*r_sun)

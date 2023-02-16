@@ -1,24 +1,28 @@
-% TOFleg1 = input(1); %days
-% TOFleg2 = input(2); %days
-% TOFleg3 = input(3); %days
-% flybyr1 = input(4); %km
-% flybyr2 = input(5); %km
+% K_TOFleg1 = input(1); %0 to 1
+% K_TOFleg2 = input(2); %0 to 1
+% K_TOFleg3 = input(3); %0 to 1
 
-function [c, ceq] = nonLCons(input,launchDate, sequence, uranus_vinf)
+function [c, ceq] = nonLCons(input,launchDateRange, sequence, uranus_vinf)
 % This function contains all non linear constraints, namely matching dV
 % for gravity assists and vinf at uranus
 
 %% Initializations
 mu = 1.32712440018E11;
 
-dVmax = 15;
-TOFmax = 18*365.2422;
+%dVmax = 40;
+%TOFmax = 18*365.2422;
 
-TOFleg1 = input(1); %days
-TOFleg2 = input(2); %days
-TOFleg3 = input(3); %days
-flybyr1 = input(4); %km
-flybyr2 = input(5); %km
+K_launchDate = input(1);
+K_TOFleg1 = input(2);
+K_TOFleg2 = input(3);
+K_TOFleg3 = input(4);
+
+launchDate = launchDateRange(1) +...
+    K_launchDate*(launchDateRange(2) - launchDateRange(1)); %days
+TOFleg1 = K_TOFleg1*get_HohmanTOF(sequence(1),sequence(2)); %days
+TOFleg2 = K_TOFleg2*get_HohmanTOF(sequence(2),sequence(3)); %days
+TOFleg3 = K_TOFleg3*get_HohmanTOF(sequence(3),sequence(4)); %days
+
 
 %% Calculating Trajectory
 [r1, vp1] = extractEphem(launchDate,sequence(1),true);
@@ -31,31 +35,43 @@ flybyr2 = input(5); %km
 [v3f,v4,~,~] = lambert(r3,r4,TOFleg3,0,mu);
 
 %% Matching Uranus Vinf
-ceq(1) = norm(v4 - vp4') - uranus_vinf;
+%ceq(1) = (norm(v4 - vp4) - uranus_vinf)/uranus_vinf;
 
 %% Matching dV for GAs
-dvGA1_req = v2f - v2i;
-deltaGA1_req = abs(acos(dot(v2i,dvGA1_req)/(norm(v2i)*norm(dvGA1_req))));
-dvGA2_req = v3f - v3i;
-deltaGA2_req = abs(acos(dot(v3i,dvGA2_req)/(norm(v3i)*norm(dvGA2_req))));
+dv_reqGA1 = v2f - v2i;
+v_relGA1 = v2i - vp2;
+alphaGA1 = pi - angleBetween(v_relGA1,dv_reqGA1);
+deltaGA1 = pi - 2*alphaGA1;
 
-[dvGA1, deltaGA1] = get_dvGA(vp2,v2i,flybyr1,sequence(2));
-[dvGA2, deltaGA2] = get_dvGA(vp3,v3i,flybyr2,sequence(3));
+[dvGA1, passbyr1] = get_dvGA(v_relGA1,deltaGA1,sequence(2));
+
+dv_reqGA2 = v3f - v3i;
+v_relGA2 = v3i - vp3;
+alphaGA2 = pi - angleBetween(v_relGA2,dv_reqGA2);
+deltaGA2 = pi - 2*alphaGA2;
+
+[dvGA2, passbyr2] = get_dvGA(v_relGA2,deltaGA2,sequence(3));
 
 % matching dV magnitude
-ceq(2) = norm(dvGA1_req) - dvGA1;
-ceq(3) = norm(dvGA2_req) - dvGA2;
-
-% matching dV angle
-ceq(4) = deltaGA1_req - deltaGA1;
-ceq(5) = deltaGA2_req - deltaGA2;
+K = 1/10; % constraint scaling
+ceq(1) = K*(norm(dv_reqGA1) - dvGA1);
+ceq(2) = K*(norm(dv_reqGA2) - dvGA2);
 
 %% Max dV and TOF
-totaldV = norm(v1 - vp1);
-totalTOF = TOFleg1 + TOFleg2 + TOFleg3;
+%totaldV = norm(v1 - vp1);
+%totalTOF = TOFleg1 + TOFleg2 + TOFleg3;
 
-c(1) = totaldV - dVmax;
-c(2) = totalTOF - TOFmax;
+%c(1) = (totaldV - dVmax)/dVmax;
+%c(2) = (totalTOF - TOFmax)/TOFmax;
+
+%% Verifying s/c does not intersect planet
+c(1) = (getPlanetRpLim(sequence(2)) - passbyr1)/getPlanetRpLim(sequence(2));
+c(2) = (getPlanetRpLim(sequence(3)) - passbyr2)/getPlanetRpLim(sequence(3));
+
+%% Verifying delta of gravity assist is reasonable
+K = -1/pi; %scaling
+c(3) = K*deltaGA1;
+c(4) = K*deltaGA2;
 
 end
 
