@@ -23,8 +23,8 @@ TOFleg3 = K_TOFleg3*get_HohmanTOF(sequence(3),sequence(4)); %days
 %% Calulate Trajectory
 [r1,vp1] = extractEphem(launchDate,sequence(1),true);
 r2 = extractEphem(launchDate+TOFleg1,sequence(2),false);
-r3 = extractEphem(launchDate+TOFleg1+TOFleg2,sequence(1),false);
-[r4,vp4] = extractEphem(launchDate+TOFleg1+TOFleg2+TOFleg3,sequence(1),true);
+r3 = extractEphem(launchDate+TOFleg1+TOFleg2,sequence(3),false);
+[r4,vp4] = extractEphem(launchDate+TOFleg1+TOFleg2+TOFleg3,sequence(4),true);
 [v1,~,~,~] = lambert(r1,r2,TOFleg1,0,mu);
 [~,v4,~,~] = lambert(r3,r4,TOFleg3,0,mu);
 
